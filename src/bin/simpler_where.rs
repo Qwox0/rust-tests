@@ -4,19 +4,16 @@ use std::{
     thread,
 };
 
-trait DataBad {
-    type Item;
-    fn add(&mut self, rhs: Self::Item);
-}
-
-trait DataGood: Debug + Send + Sync + 'static {
-    type Item: Send + Sync + Copy + 'static;
-    fn add(&mut self, rhs: Self::Item);
-}
-
 #[derive(Debug)]
 struct DataImpl {
     value: isize,
+}
+
+// similar to the article:
+
+trait DataBad {
+    type Item;
+    fn add(&mut self, rhs: Self::Item);
 }
 
 impl DataBad for DataImpl {
@@ -26,14 +23,8 @@ impl DataBad for DataImpl {
         self.value += rhs;
     }
 }
-impl DataGood for DataImpl {
-    type Item = isize;
 
-    fn add(&mut self, rhs: Self::Item) {
-        self.value += rhs;
-    }
-}
-
+/// where trait bounds are way to complicated
 fn send_data_bad<D>(data: D, inc: D::Item)
 where
     D: DataBad + Send + Sync + Debug + 'static,
@@ -57,6 +48,25 @@ where
     println!("{:?}", data);
 }
 
+// good solution:
+
+/// similar to [`DataBad`] but with trait bounds.
+/// only place where trait bound are needed
+trait DataGood: Debug + Send + Sync + 'static {
+    type Item: Send + Sync + Copy + 'static;
+    fn add(&mut self, rhs: Self::Item);
+}
+
+impl DataGood for DataImpl {
+    type Item = isize;
+
+    fn add(&mut self, rhs: Self::Item) {
+        self.value += rhs;
+    }
+}
+
+/// only [`DataGood`] trait bound -> no where needed
+/// the body is identical to [`send_data_bad`]
 fn send_data_good<D: DataGood>(data: D, inc: D::Item) {
     let data = Arc::new(Mutex::new(data));
     let handles = (0..3)
