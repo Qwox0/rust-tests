@@ -24,5 +24,5 @@ fn main() {
     let string1 = "hello world".to_string();
     let string2 = "copy me".to_string();
     fn_bound_test_string.print(string1);
-    dbg!(fn_bound_test_string.copy(string2));
+    // dbg!(fn_bound_test_string.copy(string2));
 }

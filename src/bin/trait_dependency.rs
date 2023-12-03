@@ -35,6 +35,7 @@ fn main() {
     let both = Both;
 
     println!("a.a(): {}", a.a());
-    println!("both.b(): {}", both.b());
+    // println!("a.b(): {}", a.b()); // Error
     println!("both.a(): {}", both.a());
+    println!("both.b(): {}", both.b());
 }
